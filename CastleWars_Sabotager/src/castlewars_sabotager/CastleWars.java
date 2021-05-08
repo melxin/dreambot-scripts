@@ -178,6 +178,12 @@ public abstract class CastleWars extends AbstractScript
                 && gameObject.hasAction("Pass")
                 && gameObject.getX() == 2422
                 && gameObject.getY() == 3076);
+        
+        if (energyBarrier == null) 
+        {
+            return;
+        }
+        
         energyBarrier.interact();
         sleepUntil(() -> onFirstFloor(), 5000);
     }
@@ -191,6 +197,12 @@ public abstract class CastleWars extends AbstractScript
         GameObject Ladder = GameObjects.closest(gameObject -> gameObject != null
                 && gameObject.getName().equals("Ladder")
                 && gameObject.hasAction("Climb-down"));
+        
+        if (Ladder == null) 
+        {
+            return;
+        }
+        
         Ladder.interact();
         sleepUntil(() -> !onFirstFloor(), 3000);
     }
@@ -215,7 +227,12 @@ public abstract class CastleWars extends AbstractScript
             }
             return;
         }
-
+        
+        if (explosiveTable == null) 
+        {
+            return;
+        }
+        
         while (Inventory.count("Explosive potion") < 3 && inSupplyArea()) 
         {
             explosiveTable.interact();
@@ -238,7 +255,12 @@ public abstract class CastleWars extends AbstractScript
             Walking.walk(Locations.saradominSupply.getArea().getCenter());
             return;
         }
-
+        
+        if (barricadeTable == null) 
+        {
+            return;
+        }
+        
         // Grab
         while (Inventory.count("Barricade") < 22 && inSupplyArea()) 
         {
