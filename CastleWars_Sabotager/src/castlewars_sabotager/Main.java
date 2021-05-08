@@ -196,7 +196,7 @@ public class Main extends CastleWars implements ChatListener
                 }
             }
         }
-        return Calculations.random(388, 500);
+        return Calculations.random(500, 700);
     }
 
     /**

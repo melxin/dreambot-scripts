@@ -252,6 +252,7 @@ public abstract class CastleWars extends AbstractScript
      */
     public void grabTinderbox() 
     {
+        log("State = GRAB_TINDERBOX");
         GroundItem tinderbox = GroundItems.closest("Tinderbox");
         if (tinderbox != null) 
         {
@@ -321,7 +322,7 @@ public abstract class CastleWars extends AbstractScript
             return;
         }
         Inventory.get(Item -> Item.getName().equals("Explosive potion")).useOn(barricade);
-        sleep(Calculations.random(500, 700));
+        sleep(Calculations.random(700, 900));
     }
     
     /**
@@ -337,6 +338,6 @@ public abstract class CastleWars extends AbstractScript
             return;
         }
         Inventory.get(item -> item.getName().equals("Tinderbox")).useOn(barricade);
-        sleep(Calculations.random(500, 700));
+        sleep(Calculations.random(700, 900));
     }
 }
