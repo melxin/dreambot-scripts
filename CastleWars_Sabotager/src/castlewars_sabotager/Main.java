@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.dialogues.Dialogues;
+import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.pathfinding.impl.obstacle.impl.DestructableObstacle;
@@ -173,7 +174,7 @@ public class Main extends CastleWars implements ChatListener
             } 
             else 
             {
-                if (super.inSupplyArea() && !Inventory.contains(Item -> Item.getName().equals("Tinderbox"))) 
+                if (super.inSupplyArea() && !Inventory.contains(Item -> Item.getName().equals("Tinderbox")) && GroundItems.closest(GroundItem -> GroundItem.getName().equals("Tinderbox")).isOnScreen()) 
                 {
                     super.grabTinderbox();
                 } 
@@ -196,7 +197,7 @@ public class Main extends CastleWars implements ChatListener
                 }
             }
         }
-        return Calculations.random(500, 700);
+        return Calculations.random(600, 800);
     }
 
     /**

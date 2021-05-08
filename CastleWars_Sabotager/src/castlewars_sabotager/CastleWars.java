@@ -26,6 +26,7 @@
 package castlewars_sabotager;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.input.Camera;
@@ -192,7 +193,8 @@ public abstract class CastleWars extends AbstractScript
             return;
         }
         
-        energyBarrier.interact();
+        Mouse.click(energyBarrier);
+        energyBarrier.interactForceRight("Pass");
         sleepUntil(() -> onFirstFloor(), 5000);
     }
 
@@ -302,6 +304,7 @@ public abstract class CastleWars extends AbstractScript
         if (Map.canReach(dst)) 
         {
             Walking.walk(dst);
+            sleep(Calculations.random(815, 900));
         }
 
         if (Inventory.contains(Item -> Item.getName().equals("Barricade"))) 

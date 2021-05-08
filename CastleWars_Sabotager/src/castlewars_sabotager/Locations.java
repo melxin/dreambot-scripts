@@ -40,8 +40,8 @@ import org.dreambot.api.methods.map.Area;
         
         saradominSupply(new Area(2424, 3077, 2431, 3072, 0)),
         
-        barricadeSetupArea(new Area(2400, 3072, 2377, 3092, 0));
-        //barricadeSetupArea(new Area(2400, 3072, 2370, 3135, 0));
+        barricadeSetupArea(new Area(2413, 3072, 2377, 3096, 0));
+        //barricadeSetupArea(new Area(2400, 3072, 2377, 3092, 0));
         
         /*zamorakWaitingRoom(new Area(2429, 9515, 2412, 9518, 0)),
         zamorakRespawnRoom(new Area(2368, 3135, 2376, 3127, 1)),
