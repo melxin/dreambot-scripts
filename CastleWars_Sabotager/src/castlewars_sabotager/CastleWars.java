@@ -297,7 +297,8 @@ public abstract class CastleWars extends AbstractScript
         log("State = SETUP_BARRICADES");
 
         //Walking.walk(myTile.getRandomizedTile(7));
-        Tile dst = getLocalPlayer().getTile().getArea(50).getRandomTile();
+        //Tile dst = getLocalPlayer().getTile().getArea(50).getRandomTile();
+        Tile dst = Locations.barricadeSetupArea.getArea().getRandomTile();
         if (Map.canReach(dst)) 
         {
             Walking.walk(dst);
