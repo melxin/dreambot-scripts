@@ -45,7 +45,7 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 public abstract class CastleWars extends AbstractScript 
 {
-    private final AtomicInteger gameCount = new AtomicInteger(0);
+    private final AtomicInteger gameCount = new AtomicInteger();
     
     /**
      * Game count getter
@@ -151,6 +151,12 @@ public abstract class CastleWars extends AbstractScript
     {
         log("State = ENTER_WAIT_ROOM");
         GameObject saradominPortal = GameObjects.closest(gameObject -> gameObject != null && gameObject.getName().equals("Saradomin Portal") && gameObject.hasAction("Enter"));
+        
+        if (saradominPortal == null) 
+        {
+            return;
+        }
+        
         saradominPortal.interact();
         sleepUntil(() -> inWaitingRoom() || !inLobby(), Calculations.random(300, 600));
     }
