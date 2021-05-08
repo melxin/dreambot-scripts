@@ -120,7 +120,7 @@ public class Main extends CastleWars implements ChatListener
         // Wait until next game
         if (super.inWaitingRoom()) 
         {
-            log("In saradoming waiting room Area");
+            log("In saradoming waiting room area");
             super.waitUntilGame();
         }
 

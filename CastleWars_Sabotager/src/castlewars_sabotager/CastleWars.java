@@ -43,7 +43,7 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 public abstract class CastleWars extends AbstractScript 
 {
-    private AtomicInteger gameCount = new AtomicInteger(0);
+    private final AtomicInteger gameCount = new AtomicInteger(0);
     
     /**
      * Game count getter
