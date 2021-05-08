@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.dialogues.Dialogues;
+import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.pathfinding.impl.obstacle.impl.DestructableObstacle;
@@ -36,6 +37,7 @@ import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.listener.ChatListener;
 import org.dreambot.api.utilities.Timer;
+import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.message.Message;
 
 @ScriptManifest(
@@ -135,7 +137,7 @@ public class Main extends CastleWars implements ChatListener
             super.leaveRespawnRoom();
         }
 
-        // Use explosive potion on barricade when stuck
+        // Use explosive potion/Tinderbox on barricade when stuck
         if (Walking.shouldWalk(1) && getLocalPlayer().isStandingStill() && !super.inWaitingRoom()) 
         {
             log("Found obstacle!");
@@ -145,7 +147,14 @@ public class Main extends CastleWars implements ChatListener
             } 
             else 
             {
-                Walking.walkExact(getLocalPlayer().getTile().getRandomizedTile(4));
+                if (Inventory.contains(item -> item.getName().equals("Tinderbox"))) 
+                {
+                    super.useTinderbox();
+                } 
+                else 
+                {
+                    Walking.walkExact(getLocalPlayer().getTile().getRandomizedTile(4));
+                }
             }
         }
 
@@ -168,6 +177,16 @@ public class Main extends CastleWars implements ChatListener
                 if (!Inventory.contains(Item -> Item.getName().equals("Barricade"))) 
                 {
                     super.grabBarricades();
+                }
+            }
+            
+            // Grab tinderbox
+            if (super.inSupplyArea() && !Inventory.contains(item -> item.getName().equals("Tinderbox"))) 
+            {
+                GroundItem tinderbox = GroundItems.closest("Tinderbox");
+                if (tinderbox != null) 
+                {
+                    tinderbox.interactForceRight("Take");
                 }
             }
 

@@ -303,4 +303,20 @@ public abstract class CastleWars extends AbstractScript
         Inventory.get(item -> item.getName().equals("Explosive potion")).useOn(barricade);
         sleep(Calculations.random(500, 700));
     }
+    
+    /**
+     * Use tinderbox on barricade nearby
+     */
+    public void useTinderbox() 
+    {
+        NPC barricade = NPCs.closest(n -> n.getName().equals("Barricade")
+                && n.distance(getLocalPlayer()) <= 1 && n.getLocalX() == getLocalPlayer().getLocalX() && n.getLocalY() != getLocalPlayer().getLocalY()
+                || n.getName().equals("Barricade") && n.getLocalY() == getLocalPlayer().getLocalY() && n.getLocalX() != getLocalPlayer().getLocalX());
+        if (barricade == null) 
+        {
+            return;
+        }
+        Inventory.get(item -> item.getName().equals("Tinderbox")).useOn(barricade);
+        sleep(Calculations.random(500, 700));
+    }
 }
