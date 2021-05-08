@@ -104,7 +104,7 @@ public class Main extends CastleWars implements ChatListener
         }
         
         // Walk to lobby if outside lobby
-        if (!super.gameStarted() && !super.inLobby()) 
+        if (!super.gameStarted() && !super.inLobby() && !super.inWaitingRoom()) 
         {
             log("Walking to lobby");
             Walking.walk(Locations.castlewarsLobby.getArea().getCenter());
@@ -136,7 +136,7 @@ public class Main extends CastleWars implements ChatListener
         }
 
         // Use explosive potion on barricade when stuck
-        if (Walking.shouldWalk(1) && getLocalPlayer().isStandingStill()) 
+        if (Walking.shouldWalk(1) && getLocalPlayer().isStandingStill() && !super.inWaitingRoom()) 
         {
             log("Found obstacle!");
             if (Inventory.contains(item -> item.getName().contains("Explosive potion"))) 
