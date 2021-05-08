@@ -26,9 +26,9 @@ package castlewars_sabotager;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.dialogues.Dialogues;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.pathfinding.impl.obstacle.impl.DestructableObstacle;
@@ -48,8 +48,7 @@ import org.dreambot.api.wrappers.widgets.message.Message;
 public class Main extends CastleWars implements ChatListener 
 {
     private Timer timer;
-    protected static AtomicInteger gameCount;
-
+    
     /**
      * Script start
      */
@@ -98,6 +97,12 @@ public class Main extends CastleWars implements ChatListener
     @Override
     public int onLoop() 
     {
+        // Game ended
+        if (Dialogues.inDialogue() && super.inLobby()) 
+        {
+            super.onGameEnd();
+        }
+        
         // Walk to lobby if outside lobby
         if (!super.gameStarted() && !super.inLobby()) 
         {
@@ -189,13 +194,9 @@ public class Main extends CastleWars implements ChatListener
             return;
         }
 
-        g.setColor(Color.cyan);
-        g.drawString("Runtime: " + timer.formatTime(), 10, 35);
-
-        if (gameCount != null) 
-        {
-            g.drawString("Game count: " + gameCount.get(), 10, 65);
-        }
+        g.setColor(Color.BLACK);
+        g.drawString("Runtime: " + timer.formatTime(), 10, 320); // 35
+        g.drawString("Game count: " + super.getGameCount(), 10, 335); // 65
         //g.drawString("Games exp (p/h): " + getSkillTracker().getGainedExperience(Skill.FISHING) + "(" + getSkillTracker().getGainedExperiencePerHour(Skill.FISHING) + ")", 10, 65); //65
     }
 }

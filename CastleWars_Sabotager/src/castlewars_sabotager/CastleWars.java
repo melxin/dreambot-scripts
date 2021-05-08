@@ -25,6 +25,7 @@
  */
 package castlewars_sabotager;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.input.Camera;
@@ -42,6 +43,18 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 public abstract class CastleWars extends AbstractScript 
 {
+    private AtomicInteger gameCount = new AtomicInteger(0);
+    
+    /**
+     * Game count getter
+     * 
+     * @return gameCount
+     */
+    public int getGameCount() 
+    {
+        return gameCount.get();
+    }
+    
     /**
      * Is in lobby boolean
      *
@@ -118,6 +131,7 @@ public abstract class CastleWars extends AbstractScript
     public void onGameEnd() 
     {
         log("CastleWars game has ended");
+        gameCount.incrementAndGet();
     }
 
     /**
