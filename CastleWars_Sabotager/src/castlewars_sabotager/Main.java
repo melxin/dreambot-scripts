@@ -29,7 +29,6 @@ import java.awt.Graphics;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.dialogues.Dialogues;
-import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.walking.pathfinding.impl.obstacle.impl.DestructableObstacle;
@@ -37,7 +36,6 @@ import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.listener.ChatListener;
 import org.dreambot.api.utilities.Timer;
-import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.message.Message;
 
 @ScriptManifest(
