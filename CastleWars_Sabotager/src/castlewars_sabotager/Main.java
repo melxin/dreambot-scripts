@@ -141,13 +141,13 @@ public class Main extends CastleWars implements ChatListener
         if (Walking.shouldWalk(1) && getLocalPlayer().isStandingStill() && !super.inWaitingRoom()) 
         {
             log("Found obstacle!");
-            if (Inventory.contains(item -> item.getName().contains("Explosive potion"))) 
+            if (Inventory.contains(Item -> Item.getName().contains("Explosive potion"))) 
             {
                 super.useExplosive();
             } 
             else 
             {
-                if (Inventory.contains(item -> item.getName().equals("Tinderbox"))) 
+                if (Inventory.contains(Item -> Item.getName().equals("Tinderbox"))) 
                 {
                     super.useTinderbox();
                 } 
@@ -165,28 +165,26 @@ public class Main extends CastleWars implements ChatListener
             super.leaveFirstFloor();
         }
 
-        // Grab Explosive potions and barricades
+        // Grab Explosive potions, tinderbox and barricades
         if (super.gameStarted() && !super.inRespawnRoom() && !super.inLobby()) 
         {
-            if (!Inventory.contains(Item -> Item.getName().equals("Explosive potion"))) 
+            if (!Inventory.contains(Item -> Item.getName().equals("Explosive potion"))
+                    && !Inventory.contains(Item -> Item.getName().equals("Tinderbox"))) 
             {
                 super.grabExplosives();
             } 
             else 
             {
-                if (!Inventory.contains(Item -> Item.getName().equals("Barricade"))) 
+                if (super.inSupplyArea() && !Inventory.contains(Item -> Item.getName().equals("Tinderbox"))) 
                 {
-                    super.grabBarricades();
-                }
-            }
-            
-            // Grab tinderbox
-            if (super.inSupplyArea() && !Inventory.contains(item -> item.getName().equals("Tinderbox"))) 
-            {
-                GroundItem tinderbox = GroundItems.closest("Tinderbox");
-                if (tinderbox != null) 
+                    super.grabTinderbox();
+                } 
+                else 
                 {
-                    tinderbox.interactForceRight("Take");
+                    if (!Inventory.contains(Item -> Item.getName().equals("Barricade"))) 
+                    {
+                        super.grabBarricades();
+                    }
                 }
             }
 

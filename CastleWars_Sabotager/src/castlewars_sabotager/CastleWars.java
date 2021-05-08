@@ -31,6 +31,7 @@ import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.interactive.GameObjects;
 import org.dreambot.api.methods.interactive.NPCs;
+import org.dreambot.api.methods.item.GroundItems;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Map;
 import org.dreambot.api.methods.map.Tile;
@@ -39,6 +40,7 @@ import org.dreambot.api.methods.widget.Widgets;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
+import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 public abstract class CastleWars extends AbstractScript 
@@ -238,6 +240,18 @@ public abstract class CastleWars extends AbstractScript
             explosiveTable.interact();
         }
     }
+    
+    /**
+     * Grab tinderbox
+     */
+    public void grabTinderbox() 
+    {
+        GroundItem tinderbox = GroundItems.closest("Tinderbox");
+        if (tinderbox != null) 
+        {
+            tinderbox.interactForceRight("Take");
+        }
+    }
 
     /**
      * Grab barricades
@@ -300,7 +314,7 @@ public abstract class CastleWars extends AbstractScript
         {
             return;
         }
-        Inventory.get(item -> item.getName().equals("Explosive potion")).useOn(barricade);
+        Inventory.get(Item -> Item.getName().equals("Explosive potion")).useOn(barricade);
         sleep(Calculations.random(500, 700));
     }
     
