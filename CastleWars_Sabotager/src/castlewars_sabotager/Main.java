@@ -189,10 +189,13 @@ public class Main extends CastleWars implements ChatListener
             }
 
             // Setup barricades
-            if (Inventory.contains(Item -> Item.getName().equals("Barricade"))
-                    && Inventory.contains(Item -> Item.getName().equals("Explosive potion"))) 
+            if (Inventory.contains(Item -> Item.getName().equals("Explosive potion"))
+                    || Inventory.contains(Item -> Item.getName().equals("Tinderbox"))) 
             {
-                super.setupBarricades();
+                if (Inventory.contains(Item -> Item.getName().equals("Barricade"))) 
+                {
+                    super.setupBarricades();
+                }
             }
         }
         return Calculations.random(388, 500);
