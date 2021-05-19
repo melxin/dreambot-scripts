@@ -46,6 +46,8 @@ public abstract class SandCrabs extends AbstractScript
     private Area aggroResetArea;
     private boolean resetAggro;
     private Skill trainingSkill;
+    private boolean specialAttackEnabled;
+    private boolean stopScript;
     
     /**
      * Set food name
@@ -185,6 +187,46 @@ public abstract class SandCrabs extends AbstractScript
     public Skill getTrainingSkill() 
     {
         return trainingSkill;
+    }
+    
+    /**
+     * Enable special attack
+     * 
+     * @param specialAttackEnabled
+     */
+    public void setSpecialAttackEnabled(boolean specialAttackEnabled) 
+    {
+        this.specialAttackEnabled = specialAttackEnabled;
+    }
+    
+    /**
+     * Get is special attack enabled
+     * 
+     * @return special attack enabled
+     */
+    public boolean isSpecialAttackEnabled() 
+    {
+        return specialAttackEnabled;
+    }
+    
+    /**
+     * Set stop script
+     * 
+     * @param stopScript 
+     */
+    public void setStopScript(boolean stopScript) 
+    {
+        this.stopScript = stopScript;
+    }
+    
+    /**
+     * Stop script boolean getter
+     * 
+     * @return stopScript
+     */
+    public boolean isStopScript() 
+    {
+        return stopScript;
     }
     
     /**

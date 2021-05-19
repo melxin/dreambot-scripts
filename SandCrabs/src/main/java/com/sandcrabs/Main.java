@@ -26,6 +26,7 @@ package com.sandcrabs;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.util.List;
 import org.dreambot.api.Client;
 import org.dreambot.api.input.Mouse;
@@ -53,10 +54,10 @@ import org.dreambot.api.wrappers.widgets.message.Message;
         description = "Afk at Sand Crabs, start script at tile between 3 Sand Crabs",
         category = Category.THIEVING)
 
-public class Main extends SandCrabs implements ChatListener
+public class Main extends SandCrabs implements ChatListener 
 {
-    private Timer timer;
-    
+    private final Timer timer = new Timer();
+
     /**
      * Start script
      */
@@ -64,28 +65,28 @@ public class Main extends SandCrabs implements ChatListener
     public void onStart() 
     {
         super.onStart();
-                
-        timer = new Timer(); // Init timer
 
         Client.getInstance().setMouseMovementAlgorithm(new WindMouse()); // Set custom mouse movement algorithm
-        
+
         setFoodName("Tuna"); // food to use
         setFoodAmount(27); // Food amount to take from bank
-        setEatFoodAtHP(Calculations.random(7, 12)); // Eat food at hp
+        setEatFoodAtHP(Calculations.random(14, 18)); // Eat food at hp
         setTrainingSkill(Skill.RANGED); // Set skill to train
-                 
+
         SkillTracker.start(Skill.HITPOINTS);
         SkillTracker.start(getTrainingSkill());
-        
+
         log("Set afk tile: " + getLocalPlayer().getTile());
         setAfkTile(getLocalPlayer().getTile()); // Set tile to afk at
-        
-        Area aggroArea = new Area(getAfkTile().getX() + 20, getAfkTile().getY(), getAfkTile().getX() + 30, getAfkTile().getY() + 5);
+
+        Area aggroArea = new Area(getAfkTile().getX() + 35, getAfkTile().getY(), getAfkTile().getX() + 45, getAfkTile().getY() + 10);
         log("Set aggro area: " + aggroArea);
         setAggroResetArea(aggroArea); // Set aggro area
-        
+
+        setSpecialAttackEnabled(false); // Enable/Disable special attack
+
         log("Initialized");
-        
+
         log("Welcome to Sand Crabs Afker script by 7ctx.");
         log("If you experience any issues while running this script please report them to me on the forums.");
     }
@@ -98,10 +99,17 @@ public class Main extends SandCrabs implements ChatListener
     @Override
     public void onMessage(Message msg) 
     {
+        if (msg.getMessage().equalsIgnoreCase("Oh dear, you are dead!")) 
+        {
+            log("Oh dear, you are dead!");
+            setStopScript(true);
+            this.stop();
+        }
+
         if (msg.getMessage().contains("There is no ammo left in your quiver.")) 
         {
-            log("There is no ammo left in your quiver.");
-            Walking.walkExact(new Tile(getLocalPlayer().getX(), getLocalPlayer().getY() + 10));
+            log("There is no ammo left in your quiver!");
+            Walking.walkExact(new Tile(getLocalPlayer().getX(), getLocalPlayer().getY() + 15));
             sleep(5000);
             this.stop();
         }
@@ -125,57 +133,90 @@ public class Main extends SandCrabs implements ChatListener
 
     /**
      * State getter
-     * 
+     *
      * @return State
      */
     private State getState() 
     {
+        // Stop at given level
+        int stopLvl = 65;
+        if (Skills.getBoostedLevels(getTrainingSkill()) == stopLvl) 
+        {
+            log("Stopping... destination level " + stopLvl + " reached");
+            setStopScript(true);
+            Tile safeTile = new Tile(1720, 3465, 0);
+            Walking.walk(safeTile.getRandomizedTile());
+            sleepUntil(() -> getLocalPlayer().distance(safeTile) <= 3, Calculations.random(1750, 2750));
+            if (getLocalPlayer().distance(safeTile) <= 3 && !getLocalPlayer().isInCombat()) 
+            {
+                this.stop();
+            } 
+            else 
+            {
+                Walking.walkExact(safeTile);
+            }
+        }
+
         // Toggle auto retalitate on
         if (!Combat.isAutoRetaliateOn()) 
         {
-        log("Toggle auto retalitate to on");
-        Combat.toggleAutoRetaliate(true);          
+            log("Toggle auto retalitate to on");
+            Combat.toggleAutoRetaliate(true);
         }
 
-        // Bank
-        if (!Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName())))
+        // Toggle Special attack
+        if (isSpecialAttackEnabled() && Combat.getSpecialPercentage() >= Calculations.random(75, 90)) 
         {
-            log("Should bank..");
+            if (getLocalPlayer().isInCombat()) 
+            {
+                Combat.toggleSpecialAttack(true);
+            }
+        }
+        
+        // Bank
+        if (!Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName()))) 
+        {
+            log("Banking..");
             return State.BANK;
         }
 
-        // Eat food here..
-        if (Skills.getBoostedLevels(Skill.HITPOINTS) <= this.getEatFoodAtHp()) 
+        // Eat food
+        if (Skills.getBoostedLevels(Skill.HITPOINTS) <= getEatFoodAtHp()) 
         {
             log("Eat food: " + getFoodName() + " at hp: " + Skills.getBoostedLevels(Skill.HITPOINTS));
             return State.EAT_FOOD;
         }
-        
+
         // Walk to afk tile
-        if (Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName()) && getLocalPlayer().distance(getAfkTile()) > 0 && !isResetAggro())) 
+        if (Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName()) 
+                && getLocalPlayer().distance(getAfkTile()) > 0 
+                && !isResetAggro()) 
+                && !isStopScript()) 
         {
-         log("Walking to afk tile: " + getAfkTile());
-         return State.WALK_TO_CRABS;
+            log("Walking to afk tile: " + getAfkTile());
+            return State.WALK_TO_CRABS;
         }
-        
+
         // Reset aggro
-        List<NPC> sandCrabs = NPCs.all(npc -> npc != null && npc.getName().equals("Sand Crab") && npc.distance(getLocalPlayer()) <= 1);
-        if (getLocalPlayer().distance(getAfkTile()) <= 1 || isResetAggro()) 
+        List<NPC> sandCrabs = NPCs.all(npc -> npc != null && npc.getName().equals("Sand Crab") && npc.distance(getLocalPlayer()) <= 1 && npc.distance(getAfkTile()) <= 1);
+        if (!isStopScript()) 
         {
-        if (sandCrabs == null || sandCrabs.isEmpty()) 
-        {
-            log("Reset aggro");
-            return State.RESET_AGGRO;
+            if (getLocalPlayer().distance(getAfkTile()) <= 1 || isResetAggro()) 
+            {
+                if (sandCrabs == null || sandCrabs.isEmpty()) 
+                {
+                    log("Reset aggro..");
+                    return State.RESET_AGGRO;
+                }
+            }
         }
-        }
-        
         log("Sleeping..");
         return State.SLEEP;
     }
 
     /**
      * Loop
-     * 
+     *
      * @return Calculations.random
      */
     @Override
@@ -184,33 +225,58 @@ public class Main extends SandCrabs implements ChatListener
         switch (getState()) 
         {
             case BANK:
-               super.doBanking();
-               break;
+                super.doBanking();
+                break;
 
             case WALK_TO_CRABS:
                 Walking.walkExact(getAfkTile());
-                sleepUntil(() -> getLocalPlayer().getTile() == getAfkTile(), Calculations.random(2000, 3000));
+                sleepUntil(() -> getLocalPlayer().getTile() == getAfkTile(), Calculations.random(1750, 2750));
                 break;
-                
+
             case RESET_AGGRO:
                 setResetAggro(true);
                 Walking.walk(getAggroResetArea().getRandomTile());
-                sleepUntil(() -> inArea(getAggroResetArea()), Calculations.random(4000, 5000));
+                sleepUntil(() -> inArea(getAggroResetArea()), Calculations.random(3500, 5000));
                 if (inArea(getAggroResetArea())) 
                 {
                     setResetAggro(false);
                 }
                 break;
-                
+
             case EAT_FOOD:
-                Inventory.interact(item -> item != null && item.getName().contains("Tuna"), "Eat");
+                //Inventory.interact(item -> item != null && item.getName().contains(getFoodName()), "Eat");
+                Inventory.getRandom(item -> item != null && item.getName().contains(getFoodName())).interact();
                 break;
 
             case SLEEP:
-                if (Mouse.isMouseInScreen()) 
+                int random = Calculations.random(1, 3);
+                if (random == 1 && Mouse.isMouseInScreen()) 
                 {
+                    Mouse.move(new Point(Calculations.random(1, 763), Calculations.random(1, 500))); // Move mouse to random point before moving outside screen
+                    sleep(Calculations.random(210, 1300));
                     Mouse.moveMouseOutsideScreen();
+                } 
+                else 
+                {
+                    if (random == 2 && Mouse.isMouseInScreen()) 
+                    {
+                        sleep(Calculations.random(350, 2200));
+                        Mouse.moveMouseOutsideScreen();
+                    } 
+                    else 
+                    {
+                        if (random == 3 && Mouse.isMouseInScreen()) 
+                        {
+                            Mouse.move(new Point(Calculations.random(1, 763), Calculations.random(1, 500))); // Move mouse to random point
+                        }
+                    }
                 }
+                
+                if (getLocalPlayer().isInCombat()) 
+                {
+                    log("Fighting");
+                }
+
                 sleep(Calculations.random(2200, 3300));
                 break;
         }
@@ -219,8 +285,8 @@ public class Main extends SandCrabs implements ChatListener
 
     /**
      * Paint
-     * 
-     * @param g2 
+     *
+     * @param g2
      */
     @Override
     public void onPaint(Graphics2D g2) 
