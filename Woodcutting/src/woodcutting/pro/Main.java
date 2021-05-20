@@ -27,6 +27,8 @@ package woodcutting.pro;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Random;
+import org.dreambot.api.Client;
+import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.dialogues.Dialogues;
@@ -71,6 +73,8 @@ public class Main extends AbstractScript implements ChatListener
     @Override
     public void onStart() 
     {
+        Client.getInstance().setMouseMovementAlgorithm(new WindMouse());
+        
         log("Welcome to " + Constants.getName());
         // Start the Frame..
         java.awt.EventQueue.invokeLater(() -> 
@@ -226,7 +230,8 @@ public class Main extends AbstractScript implements ChatListener
                         Constants.setStatus("Chop " + Constants.getTree());
                         if (Tree.interact()) 
                         {
-                            sleep(3000);
+                            sleep(Calculations.random(300, 2200));
+                            Mouse.moveMouseOutsideScreen();
                             sleepUntil(() -> !getLocalPlayer().isAnimating() || getLocalPlayer().distance(Tree) > 2, 60000);
                         }
                     }
@@ -246,7 +251,7 @@ public class Main extends AbstractScript implements ChatListener
                 }
                 break;
         }
-        return Calculations.random(1000, 1600);
+        return Calculations.random(1000, 2200);
     }
 
     /**
