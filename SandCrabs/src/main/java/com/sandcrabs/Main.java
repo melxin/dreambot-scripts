@@ -52,7 +52,7 @@ import org.dreambot.api.wrappers.widgets.message.Message;
         name = "SandCrabs_Afker",
         version = 1.0,
         description = "Afk at Sand Crabs, start script at tile between 3 Sand Crabs",
-        category = Category.THIEVING)
+        category = Category.COMBAT)
 
 public class Main extends SandCrabs implements ChatListener 
 {
@@ -109,9 +109,18 @@ public class Main extends SandCrabs implements ChatListener
         if (msg.getMessage().contains("There is no ammo left in your quiver.")) 
         {
             log("There is no ammo left in your quiver!");
-            Walking.walkExact(new Tile(getLocalPlayer().getX(), getLocalPlayer().getY() + 15));
-            sleep(5000);
-            this.stop();
+            setStopScript(true);
+            Tile safeTile = new Tile(1720, 3465, 0);
+            Walking.walk(safeTile.getRandomizedTile());
+            sleepUntil(() -> getLocalPlayer().distance(safeTile) <= 3, Calculations.random(1750, 2750));
+            if (getLocalPlayer().distance(safeTile) <= 3 && !getLocalPlayer().isInCombat()) 
+            {
+                this.stop();
+            } 
+            else 
+            {
+                Walking.walkExact(safeTile);
+            }
         }
     }
 
@@ -139,7 +148,7 @@ public class Main extends SandCrabs implements ChatListener
     private State getState() 
     {
         // Stop at given level
-        int stopLvl = 65;
+        int stopLvl = 61;
         if (Skills.getBoostedLevels(getTrainingSkill()) == stopLvl) 
         {
             log("Stopping... destination level " + stopLvl + " reached");
