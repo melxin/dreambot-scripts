@@ -22,7 +22,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sandcrabs;
+package com.sandcrabs.pro;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -51,7 +51,7 @@ import org.dreambot.api.wrappers.widgets.message.Message;
 
 @ScriptManifest(
         author = "7ctx",
-        name = "SandCrabs_Afker",
+        name = "SandCrabs_Afker_PRO",
         version = 1.0,
         description = "Afk at Sand Crabs, start script at tile between 3 Sand Crabs",
         category = Category.COMBAT)
@@ -69,10 +69,9 @@ public class Main extends SandCrabs implements ChatListener
         super.onStart();
 
         Client.getInstance().setMouseMovementAlgorithm(new WindMouse()); // Set custom mouse movement algorithm
-
+        setUseFood(true); // Enable the use of food
         setFoodName("Tuna"); // food to use
         setFoodAmount(27); // Food amount to take from bank
-        setEatFoodAtHP(Calculations.random(14, 18)); // Eat food at hp
         setTrainingSkill(Skill.RANGED); // Set skill to train
 
         SkillTracker.start(Skill.HITPOINTS);
@@ -81,7 +80,7 @@ public class Main extends SandCrabs implements ChatListener
         log("Set afk tile: " + getLocalPlayer().getTile());
         setAfkTile(getLocalPlayer().getTile()); // Set tile to afk at
 
-        Area aggroArea = new Area(getAfkTile().getX() + 35, getAfkTile().getY(), getAfkTile().getX() + 45, getAfkTile().getY() + 10);
+        Area aggroArea = new Area(getAfkTile().getX() + 40, getAfkTile().getY(), getAfkTile().getX() + 50, getAfkTile().getY() + 12);
         log("Set aggro area: " + aggroArea);
         setAggroResetArea(aggroArea); // Set aggro area
 
@@ -112,17 +111,6 @@ public class Main extends SandCrabs implements ChatListener
         {
             log("There is no ammo left in your quiver!");
             setStopScript(true);
-            Tile safeTile = new Tile(1720, 3465, 0);
-            Walking.walk(safeTile.getRandomizedTile());
-            sleepUntil(() -> getLocalPlayer().distance(safeTile) <= 3, Calculations.random(1750, 2750));
-            if (getLocalPlayer().distance(safeTile) <= 3 && !getLocalPlayer().isInCombat()) 
-            {
-                this.stop();
-            } 
-            else 
-            {
-                Walking.walkExact(safeTile);
-            }
         }
     }
 
@@ -139,7 +127,7 @@ public class Main extends SandCrabs implements ChatListener
      */
     private enum State 
     {
-        BANK, WALK_TO_CRABS, RESET_AGGRO, EAT_FOOD, SLEEP
+        BANK, WALK_TO_CRABS, RESET_AGGRO, EAT_FOOD, STOP_SCRIPT, SLEEP
     };
 
     /**
@@ -151,21 +139,9 @@ public class Main extends SandCrabs implements ChatListener
     {
         // Stop at given level
         int stopLvl = 65;
-        if (Skills.getBoostedLevels(getTrainingSkill()) == stopLvl) 
+        if (isStopScript() || Skills.getBoostedLevels(getTrainingSkill()) == stopLvl)
         {
-            log("Stopping... destination level " + stopLvl + " reached");
-            setStopScript(true);
-            Tile safeTile = new Tile(1720, 3465, 0);
-            Walking.walk(safeTile.getRandomizedTile());
-            sleepUntil(() -> getLocalPlayer().distance(safeTile) <= 3, Calculations.random(1750, 2750));
-            if (getLocalPlayer().distance(safeTile) <= 3 && !getLocalPlayer().isInCombat()) 
-            {
-                this.stop();
-            } 
-            else 
-            {
-                Walking.walkExact(safeTile);
-            }
+          return State.STOP_SCRIPT;
         }
         
         // Loot clue scrolls
@@ -192,17 +168,25 @@ public class Main extends SandCrabs implements ChatListener
         }
         
         // Bank
-        if (!Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName()))) 
+        if (isUseFood() && !Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName()))) 
         {
             log("Banking..");
             return State.BANK;
         }
 
         // Eat food
-        if (Skills.getBoostedLevels(Skill.HITPOINTS) <= getEatFoodAtHp()) 
+        int currentHealtPercent = getLocalPlayer().getHealthPercent();
+        if (isUseFood() && currentHealtPercent <= 45 && Inventory.contains(Item -> Item != null && Item.getName().contains(getFoodName()))) 
         {
-            log("Eat food: " + getFoodName() + " at hp: " + Skills.getBoostedLevels(Skill.HITPOINTS));
+            log("Eat food: " + getFoodName() + " at hp: " + Skills.getBoostedLevels(Skill.HITPOINTS) + " | " + currentHealtPercent + "%");
             return State.EAT_FOOD;
+        } 
+        else 
+        {
+            if (currentHealtPercent <= 35) 
+            {
+                return State.STOP_SCRIPT;
+            }
         }
 
         // Walk to afk tile
@@ -228,6 +212,7 @@ public class Main extends SandCrabs implements ChatListener
                 }
             }
         }
+        
         log("Sleeping..");
         return State.SLEEP;
     }
@@ -265,6 +250,24 @@ public class Main extends SandCrabs implements ChatListener
                 //Inventory.interact(item -> item != null && item.getName().contains(getFoodName()), "Eat");
                 Inventory.getRandom(item -> item != null && item.getName().contains(getFoodName())).interact();
                 break;
+                
+            case STOP_SCRIPT:
+                if (!isStopScript()) 
+                {
+                setStopScript(true);
+                }
+                Tile safeTile = new Tile(1720, 3465, 0);
+                Walking.walk(safeTile.getRandomizedTile());
+                sleepUntil(() -> getLocalPlayer().distance(safeTile) <= 3, Calculations.random(1750, 2750));
+                if (getLocalPlayer().distance(safeTile) <= 3 && !getLocalPlayer().isInCombat()) 
+                {
+                    this.stop();
+                } 
+                else 
+                {
+                    Walking.walkExact(safeTile);
+                }
+                break;
 
             case SLEEP:
                 int random = Calculations.random(1, 3);
@@ -290,11 +293,24 @@ public class Main extends SandCrabs implements ChatListener
                     }
                 }
                 
-                if (getLocalPlayer().isInCombat()) 
+                // Increase Sand Crabs kills
+                if (getLocalPlayer().isInCombat() && !isStopScript() && !isResetAggro()) 
                 {
-                    log("Fighting");
+                    List<NPC> interactNPCs = NPCs.all(npc -> npc != null && npc.getName().equals("Sand Crab") && npc.distance(getLocalPlayer()) <= 1);
+                    for (NPC n : interactNPCs) 
+                    {
+                        if (n.isInteractedWith()) 
+                        {
+                            log("Interacting with NPC: " + n.getName() + " " + n.getTile());
+                            sleepUntil(() -> !n.isInteractedWith() || !n.isOnScreen(), 30000);
+                            if (!n.isInteractedWith() || !n.isOnScreen()) 
+                            {
+                                super.incrementSandCrabKills();
+                            }
+                        }
+                    }
                 }
-
+                
                 sleep(Calculations.random(2200, 3300));
                 break;
         }
@@ -311,8 +327,9 @@ public class Main extends SandCrabs implements ChatListener
     {
         g2.setColor(Color.BLACK);
         g2.drawString("Runtime: " + timer.formatTime(), 10, 35);
-        g2.drawString("Hitpoints exp (p/h): " + SkillTracker.getGainedExperience(Skill.HITPOINTS) + "(" + SkillTracker.getGainedExperiencePerHour(Skill.HITPOINTS) + ")", 10, 65);
-        g2.drawString(getTrainingSkill().getName() + " exp (p/h): " + SkillTracker.getGainedExperience(getTrainingSkill()) + "(" + SkillTracker.getGainedExperiencePerHour(getTrainingSkill()) + ")", 10, 80);
+        g2.drawString("Kills: " + getSandCrabKills(), 10, 65);
+        g2.drawString("Hitpoints exp (p/h): " + SkillTracker.getGainedExperience(Skill.HITPOINTS) + "(" + SkillTracker.getGainedExperiencePerHour(Skill.HITPOINTS) + ")", 10, 80);
+        g2.drawString(getTrainingSkill().getName() + " exp (p/h): " + SkillTracker.getGainedExperience(getTrainingSkill()) + "(" + SkillTracker.getGainedExperiencePerHour(getTrainingSkill()) + ")", 10, 95);
 
     }
 }

@@ -22,9 +22,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sandcrabs;
+package com.sandcrabs.pro;
 
 import java.awt.Point;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
@@ -39,15 +40,36 @@ import org.dreambot.api.wrappers.interactive.Entity;
 
 public abstract class SandCrabs extends AbstractScript 
 {
+    private boolean useFood;
     private String foodName;
     private int foodAmount;
-    private int eatFoodAtHP;
     private Tile afkTile;
     private Area aggroResetArea;
     private boolean resetAggro;
     private Skill trainingSkill;
     private boolean specialAttackEnabled;
     private boolean stopScript;
+    private final AtomicInteger sandCrabKills = new AtomicInteger();
+    
+    /**
+     * Should we use food?
+     * 
+     * @param useFood 
+     */
+    public void setUseFood(boolean useFood) 
+    {
+        this.useFood = useFood;
+    }
+    
+    /**
+     * Is use food enabled?
+     * 
+     * @return useFood
+     */
+    public boolean isUseFood() 
+    {
+        return useFood;
+    }
     
     /**
      * Set food name
@@ -87,26 +109,6 @@ public abstract class SandCrabs extends AbstractScript
     public int getFoodAmount() 
     {
         return foodAmount;
-    }
-    
-    /**
-     * Set eat food at HP, eat food at given integer
-     * 
-     * @param eatFoodAtHP 
-     */
-    public void setEatFoodAtHP(int eatFoodAtHP) 
-    {
-        this.eatFoodAtHP = eatFoodAtHP;
-    }
-    
-    /**
-     * Get eat food at HP
-     * 
-     * @return Integer at which to eat food
-     */
-    public int getEatFoodAtHp() 
-    {
-        return eatFoodAtHP;
     }
     
     /**
@@ -227,6 +229,24 @@ public abstract class SandCrabs extends AbstractScript
     public boolean isStopScript() 
     {
         return stopScript;
+    }
+    
+    /**
+     * Increment Sand Crabs kills by one
+     */
+    public void incrementSandCrabKills() 
+    {
+        sandCrabKills.incrementAndGet();
+    }
+    
+    /**
+     * Get current Sand Crab kills
+     * 
+     * @return Sand Crab kills
+     */
+    public int getSandCrabKills() 
+    {
+        return sandCrabKills.get();
     }
     
     /**
