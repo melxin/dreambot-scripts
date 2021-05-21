@@ -138,9 +138,10 @@ public class Main extends SandCrabs implements ChatListener
     private State getState() 
     {
         // Stop at given level
-        int stopLvl = 65;
+        int stopLvl = 69;
         if (isStopScript() || Skills.getBoostedLevels(getTrainingSkill()) == stopLvl)
         {
+          log("Stopping script..");
           return State.STOP_SCRIPT;
         }
         
@@ -301,10 +302,11 @@ public class Main extends SandCrabs implements ChatListener
                     {
                         if (n.isInteractedWith()) 
                         {
-                            log("Interacting with NPC: " + n.getName() + " " + n.getTile());
-                            sleepUntil(() -> !n.isInteractedWith() || !n.isOnScreen(), 30000);
+                            log("Interacting with NPC: " + n.getName() + " | lvl: " + n.getLevel() + " | tile: " + n.getTile());
+                            sleepUntil(() -> !n.isInteractedWith() || !n.isOnScreen(), 60000);
                             if (!n.isInteractedWith() || !n.isOnScreen()) 
                             {
+                                log("Killed NPC: " + n.getName() + " | lvl: " + n.getLevel() + " | tile: " + n.getTile());
                                 super.incrementSandCrabKills();
                             }
                         }
