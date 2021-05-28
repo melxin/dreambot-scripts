@@ -69,23 +69,32 @@ public class Main extends SandCrabs implements ChatListener
         super.onStart();
 
         Client.getInstance().setMouseMovementAlgorithm(new WindMouse()); // Set custom mouse movement algorithm
+        
         setUseFood(true); // Enable the use of food
+        log("setUseFood = true");
+        
         setFoodName("Tuna"); // food to use
+        log("foodName = " + getFoodName());
+        
         setFoodAmount(27); // Food amount to take from bank
+        log("setFoodAmount = " + getFoodAmount());
+        
         setTrainingSkill(Skill.RANGED); // Set skill to train
+        log("setTrainingSkill = " + getTrainingSkill().getName());
+        
+        SkillTracker.start(Skill.HITPOINTS); // Start skill tracker for hitpoints
+        SkillTracker.start(getTrainingSkill()); // Start skill tracker for trainingSkill
 
-        SkillTracker.start(Skill.HITPOINTS);
-        SkillTracker.start(getTrainingSkill());
-
-        log("Set afk tile: " + getLocalPlayer().getTile());
         setAfkTile(getLocalPlayer().getTile()); // Set tile to afk at
-
+        log("setAfkTile = " + getLocalPlayer().getTile());
+        
         Area aggroArea = new Area(getAfkTile().getX() + 40, getAfkTile().getY(), getAfkTile().getX() + 50, getAfkTile().getY() + 12);
-        log("Set aggro area: " + aggroArea);
         setAggroResetArea(aggroArea); // Set aggro area
-
+        log("setAggroResetArea = " + aggroArea);
+        
         setSpecialAttackEnabled(false); // Enable/Disable special attack
-
+        log("setSpecialAttackEnabled = " + isSpecialAttackEnabled());
+        
         log("Initialized");
 
         log("Welcome to Sand Crabs Afker script by 7ctx.");
@@ -138,7 +147,7 @@ public class Main extends SandCrabs implements ChatListener
     private State getState() 
     {
         // Stop at given level
-        int stopLvl = 69;
+        int stopLvl = 50;
         if (isStopScript() || Skills.getBoostedLevels(getTrainingSkill()) == stopLvl)
         {
           log("Stopping script..");
@@ -201,7 +210,7 @@ public class Main extends SandCrabs implements ChatListener
         }
 
         // Reset aggro
-        List<NPC> sandCrabs = NPCs.all(npc -> npc != null && npc.getName().equals("Sand Crab") && npc.distance(getLocalPlayer()) <= 1 && npc.distance(getAfkTile()) <= 1);
+        List<NPC> sandCrabs = NPCs.all(npc -> npc != null && npc.getName().equals("Sand Crab") && npc.distance(getLocalPlayer()) <= 3 && npc.distance(getAfkTile()) <= 3);
         if (!isStopScript()) 
         {
             if (getLocalPlayer().distance(getAfkTile()) <= 1 || isResetAggro()) 
@@ -303,7 +312,7 @@ public class Main extends SandCrabs implements ChatListener
                         if (n.isInteractedWith()) 
                         {
                             log("Interacting with NPC: " + n.getName() + " | lvl: " + n.getLevel() + " | tile: " + n.getTile());
-                            sleepUntil(() -> !n.isInteractedWith() || !n.isOnScreen(), 60000);
+                            sleepUntil(() -> !n.isInteractedWith() || !n.isOnScreen() || getLocalPlayer().getHealthPercent() < 45, 60000);
                             if (!n.isInteractedWith() || !n.isOnScreen()) 
                             {
                                 log("Killed NPC: " + n.getName() + " | lvl: " + n.getLevel() + " | tile: " + n.getTile());
