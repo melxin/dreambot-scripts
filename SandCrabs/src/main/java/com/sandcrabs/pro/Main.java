@@ -27,8 +27,11 @@ package com.sandcrabs.pro;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import org.dreambot.api.Client;
+import org.dreambot.api.data.GameState;
 import org.dreambot.api.input.Mouse;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.combat.Combat;
@@ -79,7 +82,7 @@ public class Main extends SandCrabs implements ChatListener
         setFoodAmount(27); // Food amount to take from bank
         log("setFoodAmount = " + getFoodAmount());
         
-        setTrainingSkill(Skill.RANGED); // Set skill to train
+        setTrainingSkill(Skill.STRENGTH); // Set skill to train
         log("setTrainingSkill = " + getTrainingSkill().getName());
         
         SkillTracker.start(Skill.HITPOINTS); // Start skill tracker for hitpoints
@@ -147,8 +150,8 @@ public class Main extends SandCrabs implements ChatListener
     private State getState() 
     {
         // Stop at given level
-        int stopLvl = 50;
-        if (isStopScript() || Skills.getBoostedLevels(getTrainingSkill()) == stopLvl)
+        int stopLvl = 70;
+        if (isStopScript() || Client.getGameState() == GameState.LOGIN_SCREEN || Skills.getBoostedLevels(getTrainingSkill()) == stopLvl)
         {
           log("Stopping script..");
           return State.STOP_SCRIPT;
@@ -213,13 +216,22 @@ public class Main extends SandCrabs implements ChatListener
         List<NPC> sandCrabs = NPCs.all(npc -> npc != null && npc.getName().equals("Sand Crab") && npc.distance(getLocalPlayer()) <= 3 && npc.distance(getAfkTile()) <= 3);
         if (!isStopScript()) 
         {
-            if (getLocalPlayer().distance(getAfkTile()) <= 1 || isResetAggro()) 
+            if (getLocalPlayer().distance(getAfkTile()) <= 1 && !getLocalPlayer().isInCombat()) 
             {
-                if (sandCrabs == null || sandCrabs.isEmpty()) 
+                Instant start = Instant.now();
+                sleep(Calculations.random(7000, 10000));
+                Instant finish = Instant.now();
+                if (finish.isAfter(start)) 
                 {
-                    log("Reset aggro..");
-                    return State.RESET_AGGRO;
+                    log("Aggro timer elapsed: " + Duration.between(start, finish).getSeconds() + 's');
+                    setResetAggro(true);
                 }
+            }
+
+            if (sandCrabs == null || sandCrabs.isEmpty() || isResetAggro()) 
+            {
+                log("Reset aggro..");
+                return State.RESET_AGGRO;
             }
         }
         
